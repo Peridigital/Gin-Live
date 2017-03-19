@@ -1,0 +1,14 @@
+<div class="blur welcome-page">
+  <div class="welcome-text-container">
+    <div class="">
+    <h3>GIN</h3>
+    <h1>LIVE</h1>
+    </div>
+
+      <form ng-submit="">
+        <input class="player-name-input" type="text" placeholder="Player Name" ng-model="playerName" >
+      </form><br>
+
+      <a href="#/gameSelection"><button type="button" class="enter-game button" ng-disabled="!playerName" ng-click="loginUser(playerName)">ENTER</button></a>
+  </div>
+</div>

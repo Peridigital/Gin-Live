@@ -1,0 +1,21 @@
+<div class="game-select-header">
+  <h1 class="inline-block">Welcome, {{currentUser.displayName}}</h1>
+  <a href="#/"><button class="button game float-right"ng-click="logoutUser()">Sign Out</button></a>
+
+</div>
+<div class="game-select-body">
+  <h2 class=" inline-block">Join a game...</h2>
+  <div class="float-right make-game-prompt">
+    <h2 class="inline-block">... Or make your own</h2>
+    <div class="game-holder">
+      <input class="new-game-name"type="text" placeholder="Game Name" ng-model="newGameName">
+      <a href="#/game"><button class="button" type="button" ng-disabled="!newGameName" ng-click="addGame(newGameName)">Make Game</button></a>
+    </div>
+  </div>
+  <div ng-repeat="game in games">
+    <div ng-hide="game.playerCount == 2"class="game-holder">
+      <h2>{{game.name}}</h2>
+      <a class="float-right" href="#/game"><button class="button" ng-click="joinGame(game.gameID)">Join Game</button></a>
+    </div>
+  </div>
+</div>
