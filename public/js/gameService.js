@@ -177,7 +177,6 @@ angular.module('cardGame').service('gameService', function($http) {
   }
 
   this.advancePhase = function (turn, localPlayer, localPlayerHand) {
-      console.log(localPlayerHand);
 
     switch (turn.currentPhase) {
       case 'Draw':
@@ -189,8 +188,6 @@ angular.module('cardGame').service('gameService', function($http) {
           //
           // // TODO check for winner
           function sortHand(hand) {
-            console.log("Sorting Hand");
-            console.log(hand);
             var sortedHand = [];
 
             for (var i = 0; i < hand.length; i++) {
@@ -214,20 +211,17 @@ angular.module('cardGame').service('gameService', function($http) {
             sortedHand.sort(function (a, b) {
               return a - b
             })
-            console.log(sortedHand);
             return sortedHand
           }
           function checkWinner() {
 
 
 
-            console.log('loading');
             // setTimeout(function () {
               // console.log('done');
               // console.log(localPlayerHand);
               // console.log(localPlayerHand[0]);
             // return  localPlayerHand.$loaded().then(function (data) {
-                console.log('Done');
                 var hand = []
                 hand.push(localPlayerHand[0]);
                 hand.push(localPlayerHand[1]);
@@ -236,7 +230,6 @@ angular.module('cardGame').service('gameService', function($http) {
                 hand.push(localPlayerHand[4]);
                 hand.push(localPlayerHand[5]);
                 hand.push(localPlayerHand[6]);
-                console.log(hand);
 
                 var sortedHand = sortHand(hand)
                 console.log('Checking Hand for Winner');
@@ -358,10 +351,10 @@ angular.module('cardGame').service('gameService', function($http) {
       value: "2"
     },
     {
-      code: "2D",
-      image: 'http://deckofcardsapi.com/static/img/2D.png',
+      code: "5D",
+      image: 'http://deckofcardsapi.com/static/img/5D.png',
       suit: "DIAMONDS",
-      value: "2"
+      value: "5"
     },
     {
       code: "2C",
@@ -376,10 +369,10 @@ angular.module('cardGame').service('gameService', function($http) {
       value: "5"
     },
     {
-      code: "5D",
-      image: 'http://deckofcardsapi.com/static/img/5D.png',
+      code: "2D",
+      image: 'http://deckofcardsapi.com/static/img/2D.png',
       suit: "DIAMONDS",
-      value: "5"
+      value: "2"
     },
     {
       code: "5C",

@@ -2,13 +2,15 @@
   <h1 class="inline-block">Welcome, {{currentUser.displayName}}</h1>
   <a href="#/"><button class="button game float-right"ng-click="logoutUser()">Sign Out</button></a>
 
+<!-- <button class="button" type="button" ng-click="updateDebug(newGameName)">{{debugConsole}}</button> -->
+
 </div>
-<div class="game-select-body">
+<div  class="game-select-body">
   <h2 class=" inline-block">Join a game...</h2>
   <div class="float-right make-game-prompt">
-    <h2 class="inline-block">... Or make your own</h2>
+    <h2 class="make-own">... Or make your own</h2>
     <div class="game-holder">
-      <input class="new-game-name"type="text" placeholder="Game Name" ng-model="newGameName">
+      <input  class="new-game-name"type="text" placeholder="Game Name" ng-model="newGameName">
       <a href="#/game"><button class="button" type="button" ng-disabled="!newGameName" ng-click="addGame(newGameName)">Make Game</button></a>
     </div>
   </div>

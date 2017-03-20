@@ -1,4 +1,4 @@
-angular.module('cardGame').controller('mainCtrl', function($scope, cardService, gameService, firebaseService, $firebaseObject, $firebaseAuth, $firebaseArray) {
+angular.module('cardGame').controller('mainCtrl', function($scope, $document, cardService, gameService, firebaseService, $firebaseObject, $firebaseAuth, $firebaseArray) {
 
   $scope.loginUser = function (name) {
     console.log('logging in');
@@ -88,6 +88,7 @@ angular.module('cardGame').controller('mainCtrl', function($scope, cardService, 
           currentPhase: 'Draw'
         }
       });
+      $scope.dealt = false
       var gameDataRef = firebase.database().ref('games/' + $scope.currentGameID)
       var localPlayerRef = firebase.database().ref('games/' + $scope.currentGameID + "/players/1")
       var opponentRef = firebase.database().ref('games/' + $scope.currentGameID + "/players/2")
@@ -103,9 +104,8 @@ angular.module('cardGame').controller('mainCtrl', function($scope, cardService, 
 
       var localHand = firebase.database().ref('games/' + $scope.currentGameID + "/players/1/hand")
       $scope.localPlayerHand = $firebaseArray(localHand)
-      // var opponentHand = firebase.database().ref('games/' + $scope.currentGameID + "/players/2/hand")
-      // $scope.opponentHand = $firebaseArray(opponentHand)
-      $scope.opponentHand = [1,2,3,4,5,6,7]
+      var opponentHand = firebase.database().ref('games/' + $scope.currentGameID + "/players/2/hand")
+      $scope.opponentHand = $firebaseArray(opponentHand)
       // var discardedCards = firebase.database().ref('games/' + $scope.currentGameID + "/discardedCards")
       // $scope.discardedCards = $firebaseArray(discardedCards)
 
@@ -129,6 +129,7 @@ angular.module('cardGame').controller('mainCtrl', function($scope, cardService, 
     updates['/gameList/' + $scope.currentGameID + "/playerCount"] = 2
     firebase.database().ref().update(updates)
     // $scope.currentGame.2 = $scope.currentUser.displayName
+    $scope.dealt = false
     var gameDataRef = firebase.database().ref('games/' + $scope.currentGameID)
     var localPlayerRef = firebase.database().ref('games/' + $scope.currentGameID + "/players/2")
     var opponentRef = firebase.database().ref('games/' + $scope.currentGameID + "/players/1")
@@ -156,15 +157,54 @@ angular.module('cardGame').controller('mainCtrl', function($scope, cardService, 
 
   $scope.readyUp = function () {
     $scope.localPlayer.ready = true;
-    $scope.currentGame.started = true;
+    //
+
+
+
+    if ($scope.dealt) {
+      console.log('Dealt True');
+
+    } else {
+      setTimeout(function () {
+        $scope.deal(7)
+      }, 100);
+      console.log('Dealt false');
+    }
+    if ($scope.opponent.ready && $scope.localPlayer.ready) {
+      setTimeout(function () {
+        $scope.currentGame.started = true;
+      }, 100);
+
+    }
+
     cardService.drawCard($scope.currentGame.deckID).then(function (data) {
       $scope.currentGame.discardedCards.unshift(data.cards)
       console.log('Talon');
     })
   }
-
+  $scope.debugConsole = false
+  $scope.updateDebug = function () {
+    if ($scope.debugConsole) {
+      $scope.debugConsole = false
+    } else {
+      $scope.debugConsole = true
+    }
+  }
   $scope.players = []
-
+  $scope.logThis = function (event) {
+    console.log(event);
+  }
+  // $document.bind("keypress", function (event) {
+  //   if (event.key === '~') {
+  //     $scope.debugConsole = 'bbbb'
+  //     $scope.$apply
+  //     console.log('Doin it');
+  //     if ($scope.currentGame) {
+  //       console.log('Going');
+  //
+  //     }
+  //   }
+  // })
   //GETs a deck from the API
   $scope.grabDeck = function() {
     return cardService.getDeck().then(function (data) {
@@ -177,7 +217,9 @@ angular.module('cardGame').controller('mainCtrl', function($scope, cardService, 
     cardService.drawCard($scope.currentGame.deckID).then(function (data) {
 
 
-      $scope.localPlayerHand.$add(data.cards)
+      setTimeout(function () {
+        $scope.localPlayerHand.$add(data.cards)
+      }, 100);
 
     })
   }
@@ -188,7 +230,7 @@ angular.module('cardGame').controller('mainCtrl', function($scope, cardService, 
         setTimeout(function () {
           $scope.drawCard()
 
-        }, 10);
+        }, 50);
 
     }
   }
@@ -209,6 +251,8 @@ angular.module('cardGame').controller('mainCtrl', function($scope, cardService, 
     //   console.log(data[0]);
     // })
   }
+
+
   //Creates a new hand
   $scope.newHand = function () {
     $scope.hands.push(
@@ -257,7 +301,7 @@ angular.module('cardGame').controller('mainCtrl', function($scope, cardService, 
       setTimeout(function () {
         $scope.drawCard()
         $scope.advancePhase($scope.opponentHand)
-      }, 100);
+      }, 250);
       // cardService.drawCard($scope.game.deckId).then(function (data) {
       //   $scope.game.players[$scope.localPlayer.playerID - 1].hand.push(data.cards)
       //   $scope.game.remainingCards = data.remainingCards
@@ -293,7 +337,6 @@ angular.module('cardGame').controller('mainCtrl', function($scope, cardService, 
 
   $scope.dealWinningHand = function () {
 
-    console.log($scope.localPlayerHand);
     $scope.testerHand = []
     $scope.testerHand.push($scope.localPlayerHand[0])
     $scope.testerHand.push($scope.localPlayerHand[1])
@@ -302,12 +345,11 @@ angular.module('cardGame').controller('mainCtrl', function($scope, cardService, 
     $scope.testerHand.push($scope.localPlayerHand[4])
     $scope.testerHand.push($scope.localPlayerHand[5])
     $scope.testerHand.push($scope.localPlayerHand[6])
-    console.log("I'm the hand in advancePhase");
-    console.log($scope.testerHand);
-    gameService.logThis($scope.testerHand)
 
 
-    $scope.localPlayer.hand = '';
+
+      $scope.localPlayer.hand = '';
+
     setTimeout(function () {
       var winningHand = gameService.dealWinningHand()
       for (var i = 0; i < winningHand.length; i++) {

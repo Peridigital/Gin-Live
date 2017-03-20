@@ -1,3 +1,4 @@
+<debug-directive debug-console="debugConsole" update-debug="updateDebug()"></debug-directive>
 <div ng-hide="currentGame.started"class="pre-game">
   <h2>{{currentGame.name}}</h2>
   <div class="match-announcement">
@@ -11,8 +12,7 @@
 
     </div>
     <button class="button"  type="button" ng-click="readyUp()">Ready Up</button>
-    <button class="button"  type="button" ng-click="drawCard()">Draw Test</button>
-    <button class="button"  type="button" ng-click="deal(7)">Deal 7</button>
+
   </div>
 
 
@@ -20,19 +20,21 @@
 
 
 
-<button class="button game"  type="button" ng-click="dealWinningHand()">Win the Game</button>
+
+<button class="button game discard-button"  type="button" ng-click="discardCard(localPlayer)">Discard Card</button>
 <br>
-<button class="button game"  type="button" ng-click="discardCard(localPlayer)">Discard Card</button>
-<br>
-<button class="button game"  type="button" ng-click="handPull()">Test Promise</button>
-<br>
-<button class="button game"  type="button" ng-click="advancePhase()">Advance</button>
-<br>
-<button ng-model="currentGame" ng-show="currentGame"class="button game" type="button">
+
+<div class="debug-console"ng-show='debugConsole'>
+  <button class="button game"  type="button" ng-click="advancePhase()">Advance</button>
+  <br>
+  <button class="button game"  type="button" ng-click="dealWinningHand()">Win the Game</button>
+  <br>
+</div>
+
+<div ng-model="currentGame" ng-show="currentGame"class="turn-box" type="button">
   It's {{currentGame.players[currentGame.turn.currentPlayer].name}}'s turn <br>
   {{currentGame.turn.currentPhase}} a card
-</button>
-<p>{{currentGame.turn.turnCount}}</p>
+</div>
 
 
 <!-- <div class="hand" ng-repeat="player in game.players">
@@ -52,11 +54,19 @@
 
 <hand-directive class="local-hand" test-thing="testThing"current-game="currentGame" local-player="localPlayer" local-player-hand="localPlayerHand" opponent-hand='opponentHand'></hand-directive>
 
-<button class="button game"  ng-show="winner" type="button" ng-click="declareWinner()">Declare Yourself <br> the Winner!</button>
+<button class="button game win-button"  ng-show="winner" type="button" ng-click="declareWinner()">Declare Yourself <br> the Winner!</button>
 <div ng-model="currentGame.declaredWinner"class="winner" ng-show="currentGame.declaredWinner">
-  {{currentGame.declaredWinner}} is the winner!
-    <div ng-repeat="card in currentGame.winningHand">
-      <img class="card"ng-src="{{card.image}}" alt="{{card.code}}">
-    </div>
-    <a  href="#/gameSelection"><button class="button"  type="button" ng-click="resetGame()">End Game</button></a>
+  <div class="winning-hand-holder">
+    {{currentGame.declaredWinner}} is the winner!
+    <div class="winning-hand">
+
+
+      <div  ng-repeat="card in currentGame.winningHand">
+        <img class="card winning-card inline-block" ng-src="{{card.image}}" alt="{{card.code}}">
+      </div>
+
+      </div>
+      <a  href="#/gameSelection"><button class="button end-game-button"  type="button" ng-click="resetGame()">End Game</button></a>
+  </div>
+
 </div>

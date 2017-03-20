@@ -96,6 +96,9 @@ box-shadow: -8px -4px 22px 0px rgba(0,0,0,0.15);
 
   margin-bottom: -125px;
 }
+.winning-card {
+  height: 15vw;
+}
 .card-holder {
   margin: 0 5px;
   float: left;
@@ -143,7 +146,7 @@ box-shadow: inset 0px 86px 73px -63px rgba(237,255,166,1);
 .pre-game {
   width: 100%;
   height: 100vh;
-  background-color: rgba(165, 185, 165, 0.98);
+  background-color: rgba(165, 185, 165, 1);
   position: fixed;
   font-size: 50px;
   top: 0;
@@ -168,7 +171,7 @@ box-shadow: inset 0px 86px 73px -63px rgba(237,255,166,1);
   margin: auto;
 }
 .ready {
-  background-color: rgb(47, 255, 75)
+  background-color: rgb(51, 212, 73)
 }
 .game-select-header {
   height: 60px;
@@ -238,4 +241,60 @@ box-shadow: -8px -4px 22px 0px rgba(0,0,0,0.5);
   text-align: center;
   font-size: 25px;
   color: rgb(62, 62, 62);
+}
+.debug-console {
+  position: absolute;
+  top: 35px;
+  left: 35px;
+  text-align: center;
+  width: 200px;
+  -webkit-box-shadow: -8px -4px 22px 0px rgba(0,0,0,0.5);
+-moz-box-shadow: -8px -4px 22px 0px rgba(0,0,0,0.5);
+box-shadow: -8px -4px 22px 0px rgba(0,0,0,0.5);
+background-color: rgba(55, 65, 55, 1);
+
+}
+.turn-box {
+  font-size: 25px;
+  position: absolute;
+  top: 50%;
+  left: 5%;
+  transform: translate(0, -50%);
+  color: rgb(233, 233, 233);
+padding: 10px;
+background-color: rgba(55, 65, 55, 1);
+}
+.discard-button {
+  position: absolute;
+  bottom: 100px;
+  left: 3%;
+}
+.win-button {
+  position: absolute;
+  bottom: 100px;
+  right: 3%;
+}
+.winning-hand {
+  overflow: hidden;
+  position: absolute;
+  margin: auto;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+}
+.winning-hand-holder {
+  /*position: absolute;
+  margin: auto;
+  width: 95%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);*/
+}
+.end-game-button {
+  position: absolute;
+  bottom:  25%;
+  left: 50%;
+  transform: translate(-50%, -50%)
 }
