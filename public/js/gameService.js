@@ -132,72 +132,218 @@ angular.module('cardGame').service('gameService', function($http) {
               }
             }
           }
-        },
-        advancePhase: function (game, localPlayer) {
-          switch (this.currentPhase) {
-            case 'Draw':
-                this.currentPhase = 'Discard'
-            break;
-            case 'Discard':
-                // this.currentPhase = 'Draw'
-                //
-                // // TODO check for winner
-                //
-                // if (this.checkWinner(game, localPlayer)) {
-                //   return this.currentPlayer
-                // }
-
-                switch (this.currentPlayer) {
-                  case 1:
-                      this.currentPlayer = 2
-                  break;
-                  case 2:
-                      this.currentPlayer = 1
-                      this.turnCount ++
-                  break;
-                  default:
-                }
-            break;
-
-            default:
-
-          }
         }
+        // advancePhase: function (game, opponentHand) {
+        //   switch (this.currentPhase) {
+        //     case 'Draw':
+        //         this.currentPhase = 'Discard'
+        //     break;
+        //     case 'Discard':
+        //         // this.currentPhase = 'Draw'
+        //         //
+        //         // // TODO check for winner
+        //
+        //         // if (this.checkWinner(game, localPlayer)) {
+        //         //   return this.currentPlayer
+        //         // }
+        //
+        //
+        //         switch (this.currentPlayer) {
+        //           case 1:
+        //               this.currentPlayer = 2
+        //           break;
+        //           case 2:
+        //               this.currentPlayer = 1
+        //               this.turnCount ++
+        //           break;
+        //           default:
+        //         }
+        //     break;
+        //
+        //     default:
+        //
+        //   }
+        // }
       }
     }
   }
-  this.advancePhase = function (turn) {
+
+
+
+
+  this.declareWinner= function (currentGame, localPlayer, localPlayerHand) {
+    currentGame.declaredWinner = localPlayer.name;
+    currentGame.winningHand = localPlayerHand
+  }
+
+  this.advancePhase = function (turn, localPlayer, localPlayerHand) {
+      console.log(localPlayerHand);
 
     switch (turn.currentPhase) {
       case 'Draw':
-          
+
           turn.currentPhase = 'Discard'
       break;
       case 'Discard':
           turn.currentPhase = 'Draw'
           //
           // // TODO check for winner
-          //
-          // if (this.checkWinner(game, localPlayer)) {
-          //   return this.currentPlayer
-          // }
+          function sortHand(hand) {
+            console.log("Sorting Hand");
+            console.log(hand);
+            var sortedHand = [];
 
-          switch (turn.currentPlayer) {
-            case 1:
-
-                turn.currentPlayer = 2
-            break;
-            case 2:
-
-                turn.currentPlayer = 1
-            break;
-            default:
+            for (var i = 0; i < hand.length; i++) {
+              switch (hand[i].value) {
+                case 'ACE':
+                  sortedHand.push('14')
+                break;
+                case 'KING':
+                  sortedHand.push('13')
+                break;
+                case 'QUEEN':
+                  sortedHand.push('12')
+                break;
+                case 'JACK':
+                  sortedHand.push('11')
+                break;
+                default:
+                  sortedHand.push(hand[i].value)
+              }
+            }
+            sortedHand.sort(function (a, b) {
+              return a - b
+            })
+            console.log(sortedHand);
+            return sortedHand
           }
-      break;
+          function checkWinner() {
 
-      default:
+
+
+            console.log('loading');
+            // setTimeout(function () {
+              // console.log('done');
+              // console.log(localPlayerHand);
+              // console.log(localPlayerHand[0]);
+            // return  localPlayerHand.$loaded().then(function (data) {
+                console.log('Done');
+                var hand = []
+                hand.push(localPlayerHand[0]);
+                hand.push(localPlayerHand[1]);
+                hand.push(localPlayerHand[2]);
+                hand.push(localPlayerHand[3]);
+                hand.push(localPlayerHand[4]);
+                hand.push(localPlayerHand[5]);
+                hand.push(localPlayerHand[6]);
+                console.log(hand);
+
+                var sortedHand = sortHand(hand)
+                console.log('Checking Hand for Winner');
+                var suitTracker = {
+                  "HEARTS": 0,
+                  "CLUBS": 0,
+                  "SPADES": 0,
+                  "DIAMONDS": 0
+                }
+                var fullSuit = false
+                for (var i = 0; i < hand.length; i++) {
+                  suitTracker[hand[i].suit] ++
+                }
+                for (var suit in suitTracker) {
+                  if (suitTracker.hasOwnProperty(suit)) {
+                    if (suitTracker[suit] === 7) {
+                      fullSuit = true
+                    }
+                  }
+                }
+                if (fullSuit) {
+                  var handStr = sortedHand.join('')
+                  if ('234567891011121314'.indexOf(handStr) != -1) {
+                    return true
+                  }
+                }
+                var valueTracker = {
+
+                }
+                for (var i = 0; i < sortedHand.length; i++) {
+                  if (valueTracker.hasOwnProperty(sortedHand[i])) {
+                    valueTracker[sortedHand[i]] ++
+                  } else {
+                    valueTracker[sortedHand[i]] = 1
+                  }
+                }
+                console.log(valueTracker);
+                for (var value in valueTracker) {
+                  if (valueTracker.hasOwnProperty(value)) {
+                    console.log('Step 1');
+                    if (valueTracker[value] === 4) {
+
+                      for (var secValue in valueTracker) {
+                        if (valueTracker.hasOwnProperty(secValue)) {
+
+                          if (valueTracker[secValue] === 3) {
+                            console.log('Step 4');
+                            return true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+
+                console.log(hand);
+              // }, 2000);
+
+
+            // })
+          }
+            if (checkWinner()) {
+              console.log("******* WINNER ********");
+              return turn.currentPlayer
+            } else {
+              console.log('***No such luck***');
+            }
+
+            switch (turn.currentPlayer) {
+              case 1:
+
+                  turn.currentPlayer = 2
+              break;
+              case 2:
+
+                  turn.currentPlayer = 1
+              break;
+              default:
+            }
+        break;
+
+        default:
+
+
     }
   }
+
+  this.checkTurn = function (playerID, action, turn) {
+    console.log(playerID);
+    console.log(turn);
+    if (playerID == turn.currentPlayer) {
+      if (action === turn.currentPhase) {
+        return true
+      } else {
+        console.log('Wrong phase');
+      }
+    } else {
+      console.log('Wrong player, ' + playerID);
+    }
+  },
+
+  this.discardCard = function (localPlayer) {
+    this.discardedCards.unshift(localPlayer.selected)
+    this.players[localPlayer.playerID - 1].hand.splice(localPlayer.selected.index, 1)
+    localPlayer.selected = ''
+  },
+
   this.dealWinningHand = function () {
     return [{
       code: "2H",
@@ -284,5 +430,8 @@ angular.module('cardGame').service('gameService', function($http) {
     //   value: "7"
     // }]
   }
-
+  this.logThis = function (param) {
+    console.log("logging param");
+    console.log(param);
+  }
 })

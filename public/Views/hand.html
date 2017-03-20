@@ -1,9 +1,9 @@
 
 <div class="local-hand-bottom">
   <div >
-    <div ng-repeat="card in game.players[localPlayer.playerID - 1].hand">
+    <div ng-repeat="card in localPlayerHand">
       <div ng-class="{selected: card.code === localPlayer.selected.code}" class="card-holder">
-        <img ng-click="selectCard($index, localPlayer, game)" class="card  card-in-hand"ng-src="{{card.image}}" alt="{{card.code}}">
+        <img ng-click="selectCard($index, localPlayer, game, localPlayerHand)" class="card  card-in-hand"ng-src="{{card.image}}" alt="{{card.code}}">
       </div>
     </div>
   </div>
@@ -11,7 +11,7 @@
 
 <div class="local-hand-top">
   <div >
-    <div ng-repeat="card in game.players[localPlayer.opponent - 1].hand">
+    <div  ng-repeat="card in opponentHand">
       <div  class="card-holder">
         <img  class="card  card-in-hand"ng-src="./Card-back.png" alt="{{card.code}}">
       </div>

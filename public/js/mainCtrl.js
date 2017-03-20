@@ -69,18 +69,18 @@ angular.module('cardGame').controller('mainCtrl', function($scope, cardService, 
         deckID: data.deckId,
         name: name,
         gameID: 'GAME' + $scope.currentUser.uid,
+        started: false,
+        discardedCards: [{image: ''}],
         players: {
-          p1: {
+          1: {
             name: $scope.currentUser.displayName,
             uid: $scope.currentUser.uid,
             ready: false,
-            hand: ['placeholder']
           },
-          p2: {
+          2: {
             name: 'Waiting for player...',
             uid: '',
             ready: false,
-            hand: ['placeholder']
           }
         },
         turn: {
@@ -89,8 +89,9 @@ angular.module('cardGame').controller('mainCtrl', function($scope, cardService, 
         }
       });
       var gameDataRef = firebase.database().ref('games/' + $scope.currentGameID)
-      var localPlayerRef = firebase.database().ref('games/' + $scope.currentGameID + "/players/p1")
-      var opponentRef = firebase.database().ref('games/' + $scope.currentGameID + "/players/p2")
+      var localPlayerRef = firebase.database().ref('games/' + $scope.currentGameID + "/players/1")
+      var opponentRef = firebase.database().ref('games/' + $scope.currentGameID + "/players/2")
+
       var gameSync = $firebaseObject(gameDataRef);
       var localPlayerSync = $firebaseObject(localPlayerRef);
       var opponentSync = $firebaseObject(opponentRef);
@@ -98,6 +99,16 @@ angular.module('cardGame').controller('mainCtrl', function($scope, cardService, 
       gameSync.$bindTo($scope, "currentGame")
       localPlayerSync.$bindTo($scope, "localPlayer")
       opponentSync.$bindTo($scope, "opponent")
+
+
+      var localHand = firebase.database().ref('games/' + $scope.currentGameID + "/players/1/hand")
+      $scope.localPlayerHand = $firebaseArray(localHand)
+      // var opponentHand = firebase.database().ref('games/' + $scope.currentGameID + "/players/2/hand")
+      // $scope.opponentHand = $firebaseArray(opponentHand)
+      $scope.opponentHand = [1,2,3,4,5,6,7]
+      // var discardedCards = firebase.database().ref('games/' + $scope.currentGameID + "/discardedCards")
+      // $scope.discardedCards = $firebaseArray(discardedCards)
+
     })
 
   }
@@ -109,25 +120,34 @@ angular.module('cardGame').controller('mainCtrl', function($scope, cardService, 
     $scope.currentGameID = gameID
     console.log($scope.currentGameID);
     var updates = {};
-    updates['/games/' + $scope.currentGameID + "/players/p2"] = {
+    updates['/games/' + $scope.currentGameID + "/players/2"] = {
       uid: $scope.currentUser.uid,
       name: $scope.currentUser.displayName,
       ready: false,
-      hand: ['placeholder']
+      hand: []
     }
     updates['/gameList/' + $scope.currentGameID + "/playerCount"] = 2
     firebase.database().ref().update(updates)
-    // $scope.currentGame.p2 = $scope.currentUser.displayName
+    // $scope.currentGame.2 = $scope.currentUser.displayName
     var gameDataRef = firebase.database().ref('games/' + $scope.currentGameID)
-    var localPlayerRef = firebase.database().ref('games/' + $scope.currentGameID + "/players/p2")
-    var opponentRef = firebase.database().ref('games/' + $scope.currentGameID + "/players/p1")
+    var localPlayerRef = firebase.database().ref('games/' + $scope.currentGameID + "/players/2")
+    var opponentRef = firebase.database().ref('games/' + $scope.currentGameID + "/players/1")
+    var testRef = firebase.database().ref('games/' + $scope.currentGameID + "/players/1/hand")
+
     var gameSync = $firebaseObject(gameDataRef);
     var localPlayerSync = $firebaseObject(localPlayerRef);
     var opponentSync = $firebaseObject(opponentRef);
+    var testSync = $firebaseObject(testRef)
 
     gameSync.$bindTo($scope, "currentGame")
     localPlayerSync.$bindTo($scope, "localPlayer")
     opponentSync.$bindTo($scope, "opponent")
+    testSync.$bindTo($scope, "testHand")
+
+    var localHand = firebase.database().ref('games/' + $scope.currentGameID + "/players/2/hand")
+    $scope.localPlayerHand = $firebaseArray(localHand)
+    var opponentHand = firebase.database().ref('games/' + $scope.currentGameID + "/players/1/hand")
+    $scope.opponentHand = $firebaseArray(opponentHand)
 }
   // create a synchronized array
   // click on `index.html` above to see it used in the DOM!
@@ -135,7 +155,12 @@ angular.module('cardGame').controller('mainCtrl', function($scope, cardService, 
   $scope.test = 2
 
   $scope.readyUp = function () {
-    $scope.localPlayer.ready = true
+    $scope.localPlayer.ready = true;
+    $scope.currentGame.started = true;
+    cardService.drawCard($scope.currentGame.deckID).then(function (data) {
+      $scope.currentGame.discardedCards.unshift(data.cards)
+      console.log('Talon');
+    })
   }
 
   $scope.players = []
@@ -147,19 +172,42 @@ angular.module('cardGame').controller('mainCtrl', function($scope, cardService, 
     })
   }
   //Draws a card into a specific hand but GETting a card from the deckID API
-  $scope.drawCard = function (index, deckId) {
-    cardService.drawCard(deckId).then(function (data) {
-      $scope.game.players[index].hand.push(data.cards)
-      $scope.game.remainingCards = data.remainingCards
+  $scope.drawCard = function () {
+
+    cardService.drawCard($scope.currentGame.deckID).then(function (data) {
+
+
+      $scope.localPlayerHand.$add(data.cards)
+
     })
   }
   //Draws a number of cards to every hand
   $scope.deal = function (dealCount) {
     for (var i = 0; i < dealCount; i++) {
-      for (var j = 0; j < 2; j++) {
-        $scope.drawCard(j, $scope.game.deckId)
-      }
+
+        setTimeout(function () {
+          $scope.drawCard()
+
+        }, 10);
+
     }
+  }
+  $scope.handPull = function () {
+    console.log($scope.localPlayerHand);
+    var hand = []
+    hand.push($scope.localPlayerHand[0])
+    hand.push($scope.localPlayerHand[1])
+    hand.push($scope.localPlayerHand[2])
+    hand.push($scope.localPlayerHand[3])
+    hand.push($scope.localPlayerHand[4])
+    hand.push($scope.localPlayerHand[5])
+    hand.push($scope.localPlayerHand[6])
+    console.log(hand);
+    return hand
+    // $scope.localPlayerHand.$loaded().then(function (data) {
+    //   console.log(data);
+    //   console.log(data[0]);
+    // })
   }
   //Creates a new hand
   $scope.newHand = function () {
@@ -193,7 +241,10 @@ angular.module('cardGame').controller('mainCtrl', function($scope, cardService, 
     $scope.loginPlayer("Aaron")
   }
   $scope.advancePhase = function () {
-    var winCheck = $scope.game.turn.advancePhase($scope.game, $scope.localPlayer)
+
+
+    var winCheck = gameService.advancePhase($scope.currentGame.turn, $scope.localPlayer, $scope.localPlayerHand)
+    console.log(winCheck);
     if (winCheck) {
       $scope.winner = true
       if (winCheck === $scope.localPlayer.playerID) {
@@ -202,53 +253,107 @@ angular.module('cardGame').controller('mainCtrl', function($scope, cardService, 
     }
   }
   $scope.drawFromDeck = function () {
-    if ($scope.game.checkTurn($scope.localPlayer.playerID, 'Draw')) {
-
-      cardService.drawCard($scope.game.deckId).then(function (data) {
-        $scope.game.players[$scope.localPlayer.playerID - 1].hand.push(data.cards)
-        $scope.game.remainingCards = data.remainingCards
-        $scope.advancePhase()
-        $scope.aiTurn()
-      })
+    if (gameService.checkTurn($scope.localPlayer.$id, 'Draw', $scope.currentGame.turn)) {
+      setTimeout(function () {
+        $scope.drawCard()
+        $scope.advancePhase($scope.opponentHand)
+      }, 100);
+      // cardService.drawCard($scope.game.deckId).then(function (data) {
+      //   $scope.game.players[$scope.localPlayer.playerID - 1].hand.push(data.cards)
+      //   $scope.game.remainingCards = data.remainingCards
+      //   $scope.advancePhase()
+      //   $scope.aiTurn()
+      // })
     }
   }
   $scope.drawFromDiscard = function () {
-    if ($scope.game.checkTurn($scope.localPlayer.playerID, 'Draw')) {
-      $scope.game.players[$scope.localPlayer.playerID - 1].hand.push($scope.game.discardedCards[0])
-      $scope.game.discardedCards.shift()
+    if (gameService.checkTurn($scope.localPlayer.$id, 'Draw', $scope.currentGame.turn)) {
+      var drawnCard = {}
+      setTimeout(function () {
+        console.log('attempting to discard');
+        drawnCard = $scope.currentGame.discardedCards[0]
+        $scope.currentGame.discardedCards.shift()
+
+      }, 50);
+
+      setTimeout(function () {
+        console.log($scope.currentGame.discardedCards[0]);
+        $scope.localPlayerHand.$add(drawnCard)
+      }, 200);
+
+
+
       $scope.advancePhase()
-      $scope.aiTurn()
 
     }
   }
+  $scope.declareWinner = function () {
+    gameService.declareWinner($scope.currentGame, $scope.localPlayer, $scope.localPlayerHand)
+  };
+
   $scope.dealWinningHand = function () {
-    $scope.game.players[$scope.localPlayer.playerID - 1].hand = [];
-    var winningHand = gameService.dealWinningHand()
-    for (var i = 0; i < winningHand.length; i++) {
-      $scope.game.players[$scope.localPlayer.playerID - 1].hand.push(winningHand[i])
 
-    }
-    $scope.advancePhase()
-    $scope.advancePhase()
-    $scope.aiTurn
+    console.log($scope.localPlayerHand);
+    $scope.testerHand = []
+    $scope.testerHand.push($scope.localPlayerHand[0])
+    $scope.testerHand.push($scope.localPlayerHand[1])
+    $scope.testerHand.push($scope.localPlayerHand[2])
+    $scope.testerHand.push($scope.localPlayerHand[3])
+    $scope.testerHand.push($scope.localPlayerHand[4])
+    $scope.testerHand.push($scope.localPlayerHand[5])
+    $scope.testerHand.push($scope.localPlayerHand[6])
+    console.log("I'm the hand in advancePhase");
+    console.log($scope.testerHand);
+    gameService.logThis($scope.testerHand)
+
+
+    $scope.localPlayer.hand = '';
+    setTimeout(function () {
+      var winningHand = gameService.dealWinningHand()
+      for (var i = 0; i < winningHand.length; i++) {
+        $scope.localPlayerHand.$add(winningHand[i])
+
+      }
+      console.log("Relogging tester");
+      console.log($scope.localPlayer.tester);
+      var index = 0
+      console.log($scope.localPlayerHand[index]);
+
+
+    }, 100);
+
   }
-  $scope.discardCard= function (localPlayer) {
-    if ($scope.game.checkTurn($scope.localPlayer.playerID, 'Discard')) {
-      if (localPlayer.selected) {
-        $scope.game.discardCard(localPlayer)
-        $scope.advancePhase()
-        $scope.aiTurn()
+  $scope.discardCard= function () {
+    if (gameService.checkTurn($scope.localPlayer.$id, 'Discard', $scope.currentGame.turn)) {
+      if ($scope.localPlayer.selected) {
+        $scope.currentGame.discardedCards.unshift($scope.localPlayer.selected)
+
+        setTimeout(function () {
+
+          $scope.localPlayerHand.$remove($scope.localPlayer.selected.index)
+          console.log('done');
+          $scope.localPlayer.selected = ''
+        }, 100);
+
+        $scope.advancePhase($scope.opponentHand)
       } else {
         console.log('No card selected');
       }
 
     }
   }
+  $scope.dumbDiscard= function () {
+    $scope.currentGame.discardedCards.unshift($scope.localPlayer.selected)
+  }
   $scope.resetGame = function () {
-    $scope.game = '';
-    $scope.players = [];
-    $scope.localPlayer = '';
-    $scope.winner = '';
+
+
+
+    console.log($scope.currentGame.declaredWinner);
+    // $scope.game = '';
+    // $scope.players = [];
+    // $scope.localPlayer = '';
+    // $scope.winner = '';
   }
   $scope.aiTurn = function () {
     if ($scope.game.turn.currentPlayer === $scope.localPlayer.opponent) {
